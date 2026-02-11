@@ -5,3 +5,422 @@ Made by Team Visionary on the occasion RIA Science Fair 2082
 |Dhriaj Shrestha
 |Kshitiz Ghimire
 |Sajal Sagat
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroBase | Global Agricultural Intelligence</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        [x-cloak] { display: none !important; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-900" x-data="agroApp()">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3 cursor-pointer" @click="page = 'home'">
+                    <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                        <i data-lucide="sprout"></i>
+                    </div>
+                    <span class="text-xl font-extrabold text-emerald-900 tracking-tight">AgroBase</span>
+                </div>
+
+                <div class="hidden md:flex items-center gap-8 text-sm font-bold text-stone-500">
+                    <button @click="page = 'home'" :class="page === 'home' ? 'text-emerald-600' : 'hover:text-emerald-600'" class="transition-colors">Home</button>
+                    <button @click="page = 'database'" :class="page === 'database' ? 'text-emerald-600' : 'hover:text-emerald-600'" class="transition-colors">Plant Library</button>
+                    <button @click="page = 'research'" :class="page === 'research' ? 'text-emerald-600' : 'hover:text-emerald-600'" class="transition-colors">Research Hub</button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="relative hidden sm:block">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 w-4 h-4"></i>
+                        <input type="text" x-model="searchQuery" placeholder="Search crops..." 
+                            class="bg-stone-100 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-emerald-500 outline-none w-48 lg:w-64 transition-all">
+                    </div>
+                    <button class="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HOME PAGE -->
+    <div x-show="page === 'home'" x-cloak x-transition>
+        <!-- Hero -->
+        <section class="relative bg-emerald-900 text-white py-24 lg:py-32 overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <img src="https://images.unsplash.com/photo-1688320243376-69b68a8f656f?q=80&w=1080" class="w-full h-full object-cover">
+            </div>
+            <div class="relative max-w-7xl mx-auto px-4 text-center">
+                <span class="inline-block px-4 py-1.5 bg-emerald-500/20 rounded-full text-emerald-300 text-sm font-bold mb-6 border border-emerald-500/30">AgroBase 2026 Release</span>
+                <h1 class="text-5xl lg:text-7xl font-black mb-8 leading-[1.1]">The World's Largest <br><span class="text-emerald-400 italic font-serif font-normal">Agricultural Database</span></h1>
+                <p class="max-w-2xl mx-auto text-lg text-emerald-100/80 mb-12">Empowering farmers and researchers with precision data on over 5,000+ species, climate metrics, and yield analysis.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button @click="page = 'database'" class="px-8 py-4 bg-white text-emerald-900 font-bold rounded-2xl hover:bg-emerald-50 transition-all shadow-xl">Start Exploring</button>
+                    <button @click="page = 'research'" class="px-8 py-4 bg-emerald-800 border border-emerald-700 font-bold rounded-2xl hover:bg-emerald-700 transition-all">Research Portal</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="max-w-7xl mx-auto px-4 -mt-16 relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <template x-for="stat in stats">
+                <div class="bg-white p-6 rounded-3xl shadow-xl shadow-stone-200/50 border border-stone-100">
+                    <div :class="`w-12 h-12 rounded-2xl ${stat.color} flex items-center justify-center text-white mb-4`">
+                        <i :data-lucide="stat.icon"></i>
+                    </div>
+                    <p class="text-xs font-bold text-stone-400 uppercase mb-1" x-text="stat.label"></p>
+                    <h4 class="text-3xl font-black text-stone-900" x-text="stat.value"></h4>
+                </div>
+            </template>
+        </section>
+
+        <!-- Features -->
+        <section class="py-24 max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-black mb-4">Precision Agriculture Features</h2>
+                <p class="text-stone-500">Everything a researcher or farmer needs to optimize crop success.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="p-8 bg-white rounded-3xl border border-stone-200 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="droplets"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Water Optimization</h3>
+                    <p class="text-stone-500 text-sm leading-relaxed">Detailed metrics on weekly precipitation requirements and moisture retention per soil type.</p>
+                </div>
+                <div class="p-8 bg-white rounded-3xl border border-stone-200 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="thermometer"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Climate Resilience</h3>
+                    <p class="text-stone-500 text-sm leading-relaxed">Temperature ranges and reliability data to help you select the best crops for your local climate zone.</p>
+                </div>
+                <div class="p-8 bg-white rounded-3xl border border-stone-200 hover:border-emerald-500 transition-all group">
+                    <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="shield-alert"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Threat Detection</h3>
+                    <p class="text-stone-500 text-sm leading-relaxed">Identify major biological and environmental threats before they impact your harvest yields.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- DATABASE PAGE -->
+    <div x-show="page === 'database'" x-cloak x-transition class="max-w-7xl mx-auto px-4 py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Filters Sidebar -->
+            <aside class="w-full lg:w-64 space-y-8">
+                <div>
+                    <h3 class="font-bold mb-4 flex items-center gap-2"><i data-lucide="filter" class="w-4 h-4"></i> Categories</h3>
+                    <div class="flex flex-col gap-2">
+                        <template x-for="cat in categories">
+                            <button @click="selectedCategory = cat" 
+                                :class="selectedCategory === cat ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white text-stone-600 hover:bg-stone-100'"
+                                class="w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all" x-text="cat">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Grid -->
+            <div class="flex-1">
+                <div class="mb-8 flex justify-between items-center">
+                    <h2 class="text-2xl font-black">Plant Library</h2>
+                    <span class="text-stone-500 text-sm font-bold" x-text="`${filteredPlants().length} Species found`"></span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <template x-for="plant in filteredPlants()" :key="plant.id">
+                        <div @click="openModal(plant)" class="bg-white rounded-3xl border border-stone-200 overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all group">
+                            <div class="h-48 overflow-hidden relative">
+                                <img :src="plant.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <span class="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black uppercase text-emerald-800" x-text="plant.category"></span>
+                            </div>
+                            <div class="p-6">
+                                <h3 class="text-xl font-extrabold mb-1" x-text="plant.name"></h3>
+                                <p class="text-stone-400 text-sm italic mb-4" x-text="plant.scientificName"></p>
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div class="flex items-center gap-2 text-xs font-bold text-stone-600">
+                                        <i data-lucide="droplets" class="w-4 h-4 text-blue-500"></i>
+                                        <span x-text="plant.waterNeeds"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs font-bold text-stone-600">
+                                        <i data-lucide="thermometer" class="w-4 h-4 text-orange-500"></i>
+                                        <span x-text="plant.idealTemp"></span>
+                                    </div>
+                                </div>
+                                <button class="w-full py-3 bg-stone-50 text-stone-600 group-hover:bg-emerald-600 group-hover:text-white rounded-2xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                                    View Specifications <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESEARCH HUB -->
+    <div x-show="page === 'research'" x-cloak x-transition class="max-w-7xl mx-auto px-4 py-12">
+        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white p-8 rounded-3xl border border-stone-200">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-bold">Yield vs Water Efficiency</h3>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1.5 bg-stone-100 rounded-lg text-xs font-bold">Export PDF</button>
+                        <button class="px-3 py-1.5 bg-stone-100 rounded-lg text-xs font-bold">CSV</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="yieldChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white p-8 rounded-3xl border border-stone-200">
+                <h3 class="text-xl font-bold mb-8">Crop Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3 bg-emerald-900 rounded-3xl p-12 text-white relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <h2 class="text-3xl font-black mb-4">Global Resilience Research</h2>
+                    <p class="text-emerald-100/70 mb-8 leading-relaxed">Our latest open-source research paper on "Climate-Adaptive Cereals in Sub-Saharan Africa" is now available for download. Access the full dataset and findings.</p>
+                    <button class="px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl transition-all">Download Dataset (2.4 GB)</button>
+                </div>
+                <i data-lucide="leaf" class="absolute -bottom-10 -right-10 w-64 h-64 text-emerald-800/40 rotate-12"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- PLANT DETAILS MODAL -->
+    <div x-show="modalOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm" x-transition.opacity>
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-[40px] overflow-hidden flex flex-col md:flex-row relative" @click.away="modalOpen = false">
+            <button @click="modalOpen = false" class="absolute top-6 right-6 z-20 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full text-white flex items-center justify-center hover:bg-white hover:text-stone-900 transition-all">
+                <i data-lucide="x"></i>
+            </button>
+
+            <div class="w-full md:w-2/5 h-64 md:h-auto overflow-hidden">
+                <img :src="selectedPlant?.image" class="w-full h-full object-cover">
+            </div>
+
+            <div class="flex-1 p-8 md:p-12 overflow-y-auto">
+                <span class="text-emerald-600 font-bold text-xs uppercase tracking-widest" x-text="selectedPlant?.category"></span>
+                <h2 class="text-4xl font-black mt-2 mb-1 text-stone-900" x-text="selectedPlant?.name"></h2>
+                <p class="text-xl italic text-stone-400 mb-8" x-text="selectedPlant?.scientificName"></p>
+
+                <div class="grid grid-cols-2 gap-4 mb-10">
+                    <div class="p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Water Need</p>
+                        <p class="font-bold" x-text="selectedPlant?.waterNeeds"></p>
+                    </div>
+                    <div class="p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Temp Range</p>
+                        <p class="font-bold" x-text="selectedPlant?.idealTemp"></p>
+                    </div>
+                    <div class="p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Seed Type</p>
+                        <p class="font-bold text-sm" x-text="selectedPlant?.seedType"></p>
+                    </div>
+                    <div class="p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Growth Time</p>
+                        <p class="font-bold text-sm" x-text="selectedPlant?.growthTime"></p>
+                    </div>
+                </div>
+
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="font-black text-lg mb-3 flex items-center gap-2">
+                            <i data-lucide="info" class="w-5 h-5 text-emerald-600"></i> Description
+                        </h4>
+                        <p class="text-stone-500 leading-relaxed" x-text="selectedPlant?.description"></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="font-black text-lg mb-4 text-red-600">Threats</h4>
+                            <ul class="space-y-2">
+                                <template x-for="threat in selectedPlant?.threats">
+                                    <li class="flex items-center gap-2 text-sm font-bold text-stone-600">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-red-400"></div>
+                                        <span x-text="threat"></span>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-lg mb-4 text-emerald-600">Advantages</h4>
+                            <ul class="space-y-2">
+                                <template x-for="adv in selectedPlant?.advantages">
+                                    <li class="flex items-center gap-2 text-sm font-bold text-stone-600">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+                                        <span x-text="adv"></span>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-stone-200 py-20">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-12">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white">
+                        <i data-lucide="sprout" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xl font-extrabold text-emerald-900 tracking-tight">AgroBase</span>
+                </div>
+                <p class="text-stone-500 max-w-sm mb-8 leading-relaxed">Dedicated to global food security through open access to precision agricultural data and climate-smart farming solutions.</p>
+                <div class="flex gap-4">
+                    <button class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-400 hover:text-emerald-600 transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></button>
+                    <button class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-400 hover:text-emerald-600 transition-colors"><i data-lucide="linkedin" class="w-5 h-5"></i></button>
+                    <button class="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center text-stone-400 hover:text-emerald-600 transition-colors"><i data-lucide="github" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-black mb-6">Explore</h4>
+                <ul class="space-y-4 text-sm font-bold text-stone-400">
+                    <li class="hover:text-emerald-600 cursor-pointer">Plant Database</li>
+                    <li class="hover:text-emerald-600 cursor-pointer">Soil Analysis</li>
+                    <li class="hover:text-emerald-600 cursor-pointer">Climate Prediction</li>
+                    <li class="hover:text-emerald-600 cursor-pointer">Yield Calculator</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-black mb-6">Support</h4>
+                <ul class="space-y-4 text-sm font-bold text-stone-400">
+                    <li class="hover:text-emerald-600 cursor-pointer">Documentation</li>
+                    <li class="hover:text-emerald-600 cursor-pointer">Research Grants</li>
+                    <li class="hover:text-emerald-600 cursor-pointer">API Access</li>
+                    <li class="hover:text-emerald-600 cursor-pointer">Contact Us</li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function agroApp() {
+            return {
+                page: 'home',
+                modalOpen: false,
+                selectedPlant: null,
+                searchQuery: '',
+                selectedCategory: 'All',
+                categories: ['All', 'Cereal', 'Vegetable', 'Fruit', 'Legume', 'Tuber', 'Herb'],
+                stats: [
+                    { label: 'Total Species', value: '5,234', icon: 'database', color: 'bg-emerald-600' },
+                    { label: 'Researchers', value: '12.4k', icon: 'users', color: 'bg-blue-600' },
+                    { label: 'Climate Zones', value: '12', icon: 'globe', color: 'bg-orange-600' },
+                    { label: 'Data Points', value: '1.2M', icon: 'bar-chart-3', color: 'bg-purple-600' }
+                ],
+                plants: [
+                    {
+                        id: 1,
+                        name: 'Wheat',
+                        scientificName: 'Triticum aestivum',
+                        category: 'Cereal',
+                        image: 'https://images.unsplash.com/photo-1688320243376-69b68a8f656f?q=80&w=1080',
+                        seedType: 'Treated certified seeds',
+                        waterNeeds: 'Medium (300-400mm)',
+                        idealTemp: '12°C - 24°C',
+                        threats: ['Rust fungus', 'Aphids', 'Drought'],
+                        advantages: ['High nutritional value', 'Stable shelf life'],
+                        description: 'A cereal grain that is a worldwide staple food. Highly adaptable but sensitive to extreme heat during flowering.',
+                        growthTime: '110 - 130 days'
+                    },
+                    {
+                        id: 2,
+                        name: 'Tomato',
+                        scientificName: 'Solanum lycopersicum',
+                        category: 'Vegetable',
+                        image: 'https://images.unsplash.com/photo-1631981784938-d14ae009fcc8?q=80&w=1080',
+                        seedType: 'Hybrid seeds',
+                        waterNeeds: 'High (500-700mm)',
+                        idealTemp: '18°C - 27°C',
+                        threats: ['Blight', 'Whiteflies', 'Frost'],
+                        advantages: ['High Vitamin C', 'Continuous harvest'],
+                        description: 'Warm weather crop requiring consistent moisture and nutrient-rich soil.',
+                        growthTime: '60 - 85 days'
+                    },
+                    {
+                        id: 3,
+                        name: 'Soybean',
+                        scientificName: 'Glycine max',
+                        category: 'Legume',
+                        image: 'https://images.unsplash.com/photo-1707340334950-e0be0aea0b44?q=80&w=1080',
+                        seedType: 'Inoculated seeds',
+                        waterNeeds: 'Medium-High',
+                        idealTemp: '20°C - 30°C',
+                        threats: ['Cyst nematode', 'Stink bugs'],
+                        advantages: ['Soil nitrogen fixation', 'High protein'],
+                        description: 'Essential legume crop used for oil and protein. Improves soil health naturally.',
+                        growthTime: '70 - 150 days'
+                    }
+                ],
+                filteredPlants() {
+                    return this.plants.filter(p => {
+                        const matchesSearch = p.name.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        const matchesCat = this.selectedCategory === 'All' || p.category === this.selectedCategory;
+                        return matchesSearch && matchesCat;
+                    });
+                },
+                openModal(plant) {
+                    this.selectedPlant = plant;
+                    this.modalOpen = true;
+                    this.$nextTick(() => lucide.createIcons());
+                },
+                init() {
+                    lucide.createIcons();
+                    this.initCharts();
+                },
+                initCharts() {
+                    new Chart(document.getElementById('yieldChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Wheat', 'Tomato', 'Soybean', 'Maize', 'Rice'],
+                            datasets: [{
+                                label: 'Yield (T/Ha)',
+                                data: [4.5, 3.8, 2.9, 5.2, 4.1],
+                                backgroundColor: '#10b981',
+                                borderRadius: 8
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+
+                    new Chart(document.getElementById('distributionChart'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Cereals', 'Vegetables', 'Legumes', 'Others'],
+                            datasets: [{
+                                data: [40, 30, 20, 10],
+                                backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7']
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
